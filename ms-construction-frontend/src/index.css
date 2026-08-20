@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * MS Construction design system — industrial navy + safety amber.
+ * Base values below are seeded defaults; the admin Theme editor overrides
+ * these --color-* variables live via inline styles on :root (see SiteContext).
+ */
+
+:root {
+  --color-primary: #14213b;
+  --color-secondary: #f59e0b;
+  --color-accent: #fbbf24;
+  --color-background: #ffffff;
+  --color-text: #334155;
+  --color-heading: #0f172a;
+  --color-button: #f59e0b;
+
+  --color-steel: #1d2c4a;
+  --color-concrete: #f4f4f2;
+  --color-border: #e2e2df;
+
+  --shadow-panel: 0 18px 40px -24px rgba(20, 33, 59, 0.45);
+  --shadow-accent: 0 12px 30px -12px rgba(251, 191, 36, 0.55);
+  --gradient-hero: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--color-primary) 94%, transparent) 0%,
+    color-mix(in srgb, var(--color-primary) 70%, transparent) 45%,
+    color-mix(in srgb, var(--color-primary) 15%, transparent) 100%
+  );
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  font-family: 'Barlow', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.surface-panel {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+}
+
+.accent-rule::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 4px;
+  background-color: var(--color-accent);
+  margin-bottom: 1rem;
+}
+
+.hero-scrim {
+  background-image: var(--gradient-hero);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
