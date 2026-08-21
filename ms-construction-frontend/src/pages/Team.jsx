@@ -15,21 +15,21 @@ export default function Team({ draftData, editable, onSelectSection }) {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    if (draftData) {
-      setTeam(draftData.team || [])
+    if (siteData && siteData.team) {
+      setTeam(siteData.team)
       setError(false)
-    } else {
+    } else if (!draftData) {
       getPublicTeam()
         .then(setTeam)
         .catch(() => setError(true))
     }
-  }, [draftData])
+  }, [siteData, draftData])
 
   return (
     <div className={`min-h-screen bg-[var(--color-concrete,#f4f4f2)] ${editable ? 'select-none' : ''}`}>
       <Navbar data={siteData} editable={editable} onSelectSection={onSelectSection} embedded={!!draftData} />
 
-      <div className="mx-auto max-w-6xl px-5 pt-32 pb-20">
+      <div className="mx-auto max-w-[1920px] px-5 xl:px-12 pt-32 pb-20">
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors">
           <ArrowLeft className="size-4" /> Back to Home
         </Link>

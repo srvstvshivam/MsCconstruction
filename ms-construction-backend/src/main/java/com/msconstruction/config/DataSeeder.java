@@ -31,6 +31,9 @@ public class DataSeeder implements CommandLineRunner {
     @Value("${app.admin.seed-password}")
     private String seedPassword;
 
+    @Value("${spring.mail.username:shivammzp2807@gmail.com}")
+    private String seedEmail;
+
     public DataSeeder(CompanyInfoRepository companyInfoRepository,
                        ServiceItemRepository serviceItemRepository,
                        ProjectRepository projectRepository,
@@ -77,8 +80,18 @@ public class DataSeeder implements CommandLineRunner {
             AdminUser admin = new AdminUser();
             admin.setUsername(seedUsername);
             admin.setPasswordHash(passwordEncoder.encode(seedPassword));
+            admin.setEmail(seedEmail);
             adminUserRepository.save(admin);
-            System.out.println("Seeded admin user '" + seedUsername + "' — CHANGE THIS PASSWORD before going to production.");
+            System.out.println("Seeded admin user '" + seedUsername + "' with email '" + seedEmail + "'.");
+        } else {
+            // Update email if it's missing
+            adminUserRepository.findByUsername(seedUsername).ifPresent(admin -> {
+                if (admin.getEmail() == null || admin.getEmail().isEmpty()) {
+                    admin.setEmail(seedEmail);
+                    adminUserRepository.save(admin);
+                    System.out.println("Updated admin user '" + seedUsername + "' with email '" + seedEmail + "'.");
+                }
+            });
         }
     }
 

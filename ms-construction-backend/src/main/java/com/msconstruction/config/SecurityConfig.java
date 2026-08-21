@@ -52,6 +52,8 @@ public class SecurityConfig {
                 // Public: anyone can read site content and submit a query
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/admin/auth/login").permitAll()
+                .requestMatchers("/api/admin/auth/forgot-password").permitAll()
+                .requestMatchers("/api/admin/auth/reset-password").permitAll()
                 // Everything else under /api/admin/** requires a valid JWT
                 .requestMatchers("/api/admin/**").authenticated()
                 .anyRequest().permitAll()

@@ -37,6 +37,16 @@ export const submitQuery = (data) => request('/api/public/contact-query', { meth
 // ---------- Admin auth ----------
 export const adminLogin = (username, password) =>
   request('/api/admin/auth/login', { method: 'POST', body: { username, password } })
+export const forgotPassword = (email) =>
+  request('/api/admin/auth/forgot-password', { method: 'POST', body: { email } })
+export const resetPassword = (token, newPassword) =>
+  request('/api/admin/auth/reset-password', { method: 'POST', body: { token, newPassword } })
+export const requestOtp = (token) =>
+  request('/api/admin/auth/request-otp', { method: 'POST', token })
+export const changePassword = (token, currentPassword, newPassword, otpCode) =>
+  request('/api/admin/auth/change-password', { method: 'POST', body: { currentPassword, newPassword, otpCode }, token })
+export const changeEmail = (token, email, otpCode) =>
+  request('/api/admin/auth/change-email', { method: 'POST', body: { email, otpCode }, token })
 
 // ---------- Admin: draft (unpublished editor state, never shown on the public site) ----------
 export const getAdminSiteData = (token) => request('/api/admin/site', { token })

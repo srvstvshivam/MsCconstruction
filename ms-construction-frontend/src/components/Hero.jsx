@@ -31,7 +31,7 @@ export default function Hero({ data, editable, onSelectSection, embedded }) {
       />
       <div className="hero-scrim absolute inset-0 -z-10" aria-hidden="true" />
 
-      <div className={`mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-5 pb-16 ${embedded ? 'pt-10' : 'pt-32'}`}>
+      <div className={`mx-auto flex min-h-[92vh] max-w-[1920px] flex-col justify-center px-5 xl:px-12 pb-16 ${embedded ? 'pt-10' : 'pt-32'}`}>
         <p className="mb-5 inline-flex w-fit items-center gap-2 border border-[var(--color-accent)]/50 bg-[var(--color-primary)]/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)] backdrop-blur">
           <ShieldCheck className="size-4" aria-hidden="true" />
           {hero.tagline || 'Delhi / NCR · Since decades on site'}

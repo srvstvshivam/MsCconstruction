@@ -18,7 +18,7 @@ import {
 const TABS = [
   { id: 'Media', label: 'All Uploaded Images' },
   { id: 'Queries', label: 'Customer Enquiries' },
-  { id: 'Revisions', label: 'Change History' },
+  { id: 'Settings', label: 'Settings' },
 ]
 
 export default function AdminDashboard() {
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-5 py-8">
         {tab === 'Media' && <MediaLibraryTab token={token} />}
         {tab === 'Queries' && <QueriesTab token={token} />}
-        {tab === 'Revisions' && <RevisionsTab token={token} />}
+        {tab === 'Settings' && <SettingsTab token={token} />}
       </div>
     </div>
   )
@@ -682,66 +682,147 @@ function QueriesTab({ token }) {
     </div>
   )
 }
-// ---------------- Revisions ----------------
-function RevisionsTab({ token }) {
-  const [items, setItems] = useState([])
-  const load = () => getRevisions(token).then(setItems)
-  useEffect(() => { load() }, [])
 
-  const restore = async (rev) => {
-    if (!window.confirm(`Are you sure you want to restore this ${rev.entityType} revision? Current data will be overwritten.`)) return;
-    
+
+import { changePassword, changeEmail, requestOtp } from '../api/client.js'
+
+function SettingsTab({ token }) {
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+  const [otpStatus, setOtpStatus] = useState('idle')
+  const [globalError, setGlobalError] = useState('')
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [status, setStatus] = useState('idle')
+  const [error, setError] = useState('')
+  
+  const [email, setEmail] = useState('')
+  const [emailStatus, setEmailStatus] = useState('idle')
+  const [emailError, setEmailError] = useState('')
+
+  const handleRequestOtp = async () => {
+    setGlobalError('')
+    setOtpStatus('requesting')
     try {
-      const parsedData = JSON.parse(rev.entitySnapshotJson)
-      switch (rev.entityType) {
-        case 'ThemeSettings': await updateTheme(token, parsedData); break;
-        case 'HeroSection': await updateHero(token, parsedData); break;
-        case 'CompanyInfo': await updateCompanyInfo(token, parsedData); break;
-        case 'StatisticItem': await updateStatistic(token, rev.entityId, parsedData); break;
-        case 'WhyChooseItem': await updateWhyChoose(token, rev.entityId, parsedData); break;
-        case 'CommitmentItem': await updateCommitment(token, rev.entityId, parsedData); break;
-        case 'NavigationItem': await updateNavigation(token, rev.entityId, parsedData); break;
-        case 'ServiceItem': await updateService(token, rev.entityId, parsedData); break;
-        case 'Project': await updateProject(token, rev.entityId, parsedData); break;
-        case 'GalleryImage': await updateGalleryImage(token, rev.entityId, parsedData); break;
-        default: alert('Restore not supported for this entity type.'); return;
-      }
-      alert('Successfully restored!')
-      load() // Refresh revisions list so the new save is visible
+      await requestOtp(token)
+      setOtpSent(true)
+      setOtpStatus('idle')
     } catch (err) {
-      console.error(err)
-      alert('Failed to restore revision.')
+      setOtpStatus('error')
+      setGlobalError(err.message || 'Failed to send OTP.')
+    }
+  }
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (!otpCode) return setError('OTP is required.')
+    if (newPassword !== confirmPassword) {
+      return setError('New passwords do not match.')
+    }
+    setStatus('saving')
+    try {
+      await changePassword(token, currentPassword, newPassword, otpCode)
+      setStatus('saved')
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setOtpCode('') // clear OTP after use
+      setOtpSent(false)
+      setTimeout(() => setStatus('idle'), 3000)
+    } catch (err) {
+      setStatus('error')
+      setError(err.message || 'Failed to change password.')
+    }
+  }
+
+  const handleEmailChange = async (e) => {
+    e.preventDefault()
+    setEmailError('')
+    if (!otpCode) return setEmailError('OTP is required.')
+    setEmailStatus('saving')
+    try {
+      await changeEmail(token, email, otpCode)
+      setEmailStatus('saved')
+      setEmail('')
+      setOtpCode('') // clear OTP after use
+      setOtpSent(false)
+      setTimeout(() => setEmailStatus('idle'), 3000)
+    } catch (err) {
+      setEmailStatus('error')
+      setEmailError(err.message || 'Failed to change email.')
     }
   }
 
   return (
-    <div className="max-w-4xl space-y-4">
-      <div className="bg-amber-50 text-amber-800 p-4 rounded-xl border border-amber-200 text-sm font-medium mb-6">
-        ℹ️ Revisions track changes made to singletons and entities. This allows viewing past states and restoring them.
-      </div>
-      {items.length === 0 && <div className="bg-white p-8 text-center rounded-xl border border-slate-200 text-slate-500">No revisions found.</div>}
-      {items.map((rev) => (
-        <div key={rev.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
-            <div>
-              <span className="font-bold text-navy-950 text-lg mr-2">{rev.entityType}</span>
-              <span className="text-slate-400 text-sm">ID: {rev.entityId}</span>
-            </div>
-            <div className="flex items-center gap-4 text-right">
-              <button onClick={() => restore(rev)} className="px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md text-sm font-bold transition-colors">Restore Version</button>
-              <div>
-                <div className="text-sm font-medium text-slate-600">By {rev.changedBy}</div>
-                <div className="text-xs text-slate-400">{new Date(rev.changedAt).toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-slate-900 rounded-lg p-4 overflow-x-auto">
-            <pre className="text-xs text-green-400 font-mono">
-              {JSON.stringify(JSON.parse(rev.entitySnapshotJson), null, 2)}
-            </pre>
-          </div>
+    <div className="max-w-md space-y-8">
+      
+      {!otpSent ? (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 className="font-bold text-navy-950 text-xl mb-4 pb-4 border-b border-slate-100">Security Verification</h2>
+          <p className="text-sm text-slate-500 mb-4">
+            To change your password or email, you must first verify your identity. Click below to receive a 6-digit OTP code at your registered admin email.
+          </p>
+          {otpStatus === 'error' && <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-sm">{globalError}</div>}
+          <button
+            onClick={handleRequestOtp}
+            disabled={otpStatus === 'requesting'}
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-3 rounded-md text-sm transition-colors disabled:opacity-60"
+          >
+            {otpStatus === 'requesting' ? 'Sending...' : 'Request Verification Code'}
+          </button>
         </div>
-      ))}
+      ) : (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-6 shadow-sm">
+          <h3 className="font-bold mb-2">Code Sent!</h3>
+          <p className="text-sm mb-4">Please check your email and enter the 6-digit code below to authorize your changes.</p>
+          <Field label="6-Digit OTP Code" type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value)} />
+          <button onClick={() => setOtpSent(false)} className="text-xs text-blue-600 hover:underline mt-2">Didn't receive it? Cancel and try again.</button>
+        </div>
+      )}
+
+      {otpSent && (
+        <>
+          <form onSubmit={handleEmailChange} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 opacity-100 transition-opacity">
+            <h2 className="font-bold text-navy-950 text-xl mb-4 pb-4 border-b border-slate-100">Update Admin Email</h2>
+            <p className="text-sm text-slate-500 mb-4">This email will receive customer inquiries and password reset links.</p>
+            
+            {emailStatus === 'saved' && <div className="mb-4 p-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-sm">Email updated successfully.</div>}
+            {emailStatus === 'error' && <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-sm">{emailError}</div>}
+
+            <Field label="New Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            
+            <button
+              type="submit"
+              disabled={emailStatus === 'saving' || !email || !otpCode}
+              className="w-full mt-4 bg-amber-500 hover:bg-amber-400 text-navy-950 font-bold py-3 rounded-md text-sm transition-colors disabled:opacity-60"
+            >
+              {emailStatus === 'saving' ? 'Saving...' : 'Update Email'}
+            </button>
+          </form>
+
+          <form onSubmit={handlePasswordChange} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 opacity-100 transition-opacity">
+            <h2 className="font-bold text-navy-950 text-xl mb-4 pb-4 border-b border-slate-100">Change Password</h2>
+            
+            {status === 'saved' && <div className="mb-4 p-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-sm">Password changed successfully.</div>}
+            {status === 'error' && <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-sm">{error}</div>}
+
+            <Field label="Current Password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+            <Field label="New Password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <Field label="Confirm New Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+
+            <button
+              type="submit"
+              disabled={status === 'saving' || !currentPassword || !newPassword || !confirmPassword || !otpCode}
+              className="w-full mt-4 bg-amber-500 hover:bg-amber-400 text-navy-950 font-bold py-3 rounded-md text-sm transition-colors disabled:opacity-60"
+            >
+              {status === 'saving' ? 'Saving...' : 'Change Password'}
+            </button>
+          </form>
+        </>
+      )}
     </div>
   )
 }

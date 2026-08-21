@@ -191,14 +191,16 @@ export default function VisualEditor() {
       if (draftState.hero) await updateHero(token, draftState.hero)
       if (draftState.company) await updateCompanyInfo(token, draftState.company)
 
-      await syncCollection(token, publishedSnapshot?.statistics, draftState.statistics, { create: createStatistic, update: updateStatistic, remove: deleteStatistic })
-      await syncCollection(token, publishedSnapshot?.whyChooseUs, draftState.whyChooseUs, { create: createWhyChoose, update: updateWhyChoose, remove: deleteWhyChoose })
-      await syncCollection(token, publishedSnapshot?.commitments, draftState.commitments, { create: createCommitment, update: updateCommitment, remove: deleteCommitment })
-      await syncCollection(token, publishedSnapshot?.navigation, draftState.navigation, { create: createNavigation, update: updateNavigation, remove: deleteNavigation })
-      await syncCollection(token, publishedSnapshot?.services, draftState.services, { create: createService, update: updateService, remove: deleteService })
-      await syncCollection(token, publishedSnapshot?.projects, draftState.projects, { create: createProject, update: updateProject, remove: deleteProject })
-      await syncCollection(token, publishedSnapshot?.gallery, draftState.gallery, { create: addGalleryImage, update: updateGalleryImage, remove: deleteGalleryImage })
-      await syncCollection(token, publishedSnapshot?.team, draftState.team, { create: createTeamMember, update: updateTeamMember, remove: deleteTeamMember })
+      await Promise.all([
+        syncCollection(token, publishedSnapshot?.statistics, draftState.statistics, { create: createStatistic, update: updateStatistic, remove: deleteStatistic }),
+        syncCollection(token, publishedSnapshot?.whyChooseUs, draftState.whyChooseUs, { create: createWhyChoose, update: updateWhyChoose, remove: deleteWhyChoose }),
+        syncCollection(token, publishedSnapshot?.commitments, draftState.commitments, { create: createCommitment, update: updateCommitment, remove: deleteCommitment }),
+        syncCollection(token, publishedSnapshot?.navigation, draftState.navigation, { create: createNavigation, update: updateNavigation, remove: deleteNavigation }),
+        syncCollection(token, publishedSnapshot?.services, draftState.services, { create: createService, update: updateService, remove: deleteService }),
+        syncCollection(token, publishedSnapshot?.projects, draftState.projects, { create: createProject, update: updateProject, remove: deleteProject }),
+        syncCollection(token, publishedSnapshot?.gallery, draftState.gallery, { create: addGalleryImage, update: updateGalleryImage, remove: deleteGalleryImage }),
+        syncCollection(token, publishedSnapshot?.team, draftState.team, { create: createTeamMember, update: updateTeamMember, remove: deleteTeamMember })
+      ])
 
       // The draft has now been fully applied to the live site — clear it so a stale
       // draft never lingers and re-appears on the admin's next visit.
@@ -218,11 +220,12 @@ export default function VisualEditor() {
         setHistory([newSnapshot])
         setHistoryIndex(0)
         setSaveStatus('published')
+        setTimeout(() => alert('Published successfully.'), 100)
       })
     } catch (err) {
       console.error(err)
       setSaveStatus('error')
-      alert('Publish failed. Your changes are still saved as a draft — nothing was lost.')
+      alert('Publishing failed: ' + (err.message || 'Unknown error occurred.'))
     }
   }
 
@@ -317,7 +320,14 @@ export default function VisualEditor() {
             ].map(section => (
               <button
                 key={section.id}
-                onClick={() => setSelectedSection(section.id)}
+                onClick={() => {
+                  setSelectedSection(section.id)
+                  if (section.id === 'TEAM') {
+                    setPreviewPage('/team')
+                  } else {
+                    setPreviewPage('/')
+                  }
+                }}
                 className={`w-full text-left px-4 py-2.5 rounded text-sm font-medium transition-colors ${selectedSection === section.id ? 'bg-slate-700 text-white' : 'text-slate-300 hover:bg-slate-700/50 hover:text-slate-100'}`}
               >
                 {section.label}
@@ -434,6 +444,16 @@ export default function VisualEditor() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {saveStatus === 'publishing' && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-slate-800 border border-slate-600 rounded-lg shadow-2xl p-8 flex flex-col items-center">
+            <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <h3 className="text-white font-bold text-lg">Publishing...</h3>
+            <p className="text-slate-400 text-sm mt-2">Applying your changes to the live site.</p>
           </div>
         </div>
       )}

@@ -22,7 +22,7 @@ export default function Navbar({ data, editable, onSelectSection, embedded }) {
         </div>
       )}
 
-      <nav aria-label="Main navigation" className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+      <nav aria-label="Main navigation" className="mx-auto flex max-w-[1920px] items-center justify-between px-5 xl:px-12 py-4">
         <a href="#top" className="flex items-center gap-3 text-white">
           <img
             src={companyInfo.logoUrl || logoFallback}

@@ -15,7 +15,14 @@ public class AdminUser {
         private String id;
 
         private String username;
+        private String email;
 
     /** BCrypt-hashed password — never store plain text */
-        private String passwordHash;
+    private String passwordHash;
+
+    private String resetToken;
+    private java.time.LocalDateTime resetTokenExpiry;
+    
+    private String otpCode;
+    private java.time.LocalDateTime otpExpiry;
 }

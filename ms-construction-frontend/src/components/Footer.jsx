@@ -26,7 +26,7 @@ export default function Footer({ data, editable, onSelectSection }) {
         </div>
       )}
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-[1920px] gap-10 px-5 xl:px-12 py-16 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
             <img
@@ -104,7 +104,7 @@ export default function Footer({ data, editable, onSelectSection }) {
       </div>
 
       <div className="border-t border-white/15">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-5 text-xs text-white/60 sm:flex-row">
+        <div className="mx-auto flex max-w-[1920px] flex-col items-center justify-between gap-3 px-5 xl:px-12 py-5 text-xs text-white/60 sm:flex-row">
           <p>
             © {new Date().getFullYear()} {companyInfo.companyName || 'Mangal & Sons Building Contractor'}.{' '}
             {companyInfo.copyrightText || 'All rights reserved.'}

@@ -34,7 +34,7 @@ export function Section({ id, children, className = '', onClick, dataCmsSection 
       data-cms-section={dataCmsSection}
       className={`relative py-20 sm:py-28 ${className}`}
     >
-      <div className="mx-auto max-w-7xl px-5">{children}</div>
+      <div className="mx-auto max-w-[1920px] px-5 xl:px-12">{children}</div>
     </section>
   )
 }

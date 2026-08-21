@@ -118,4 +118,69 @@ public class EmailService {
             throw new RuntimeException("Failed to send email");
         }
     }
+    public void sendPasswordResetEmail(String toEmail, String resetLink) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromAddress);
+            helper.setTo(toEmail);
+            helper.setSubject("🔑 Password Reset — MS Construction Admin");
+
+            String html = """
+                    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+                      <div style="padding:32px;color:#1e293b;font-size:15px;line-height:1.6;">
+                        <p>Hello,</p>
+                        <p>We received a request to reset the password for your MS Construction admin account.</p>
+                        <p>Click the button below to set a new password. This link is valid for 15 minutes.</p>
+                        <p style="text-align:center;margin:32px 0;">
+                          <a href="%s" style="background:#f59e0b;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Reset Password</a>
+                        </p>
+                        <p>If you did not request this, please ignore this email.</p>
+                      </div>
+                    </div>
+                    """.formatted(resetLink);
+
+            helper.setText(html, true);
+            mailSender.send(mimeMessage);
+
+        } catch (Exception ex) {
+            System.err.println("[EmailService] Failed to send password reset email: " + ex.getMessage());
+            throw new RuntimeException("Failed to send email");
+        }
+    }
+
+    public void sendOtpEmail(String toEmail, String otpCode) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromAddress);
+            helper.setTo(toEmail);
+            helper.setSubject("🛡️ Security Verification Code — MS Construction");
+
+            String html = """
+                    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+                      <div style="padding:32px;color:#1e293b;font-size:15px;line-height:1.6;">
+                        <p>Hello,</p>
+                        <p>We received a request to modify sensitive settings (like password or email) on your MS Construction admin account.</p>
+                        <p>Here is your 6-digit verification code. This code is valid for 10 minutes.</p>
+                        <div style="text-align:center;margin:32px 0;">
+                          <div style="display:inline-block;background:#f8fafc;border:2px dashed #cbd5e1;color:#1e293b;padding:16px 32px;font-size:24px;font-weight:bold;letter-spacing:4px;border-radius:6px;">
+                            %s
+                          </div>
+                        </div>
+                        <p>If you did not request this, please ignore this email and ensure your account is secure.</p>
+                      </div>
+                    </div>
+                    """.formatted(otpCode);
+
+            helper.setText(html, true);
+            mailSender.send(mimeMessage);
+
+        } catch (Exception ex) {
+            System.err.println("[EmailService] Failed to send OTP email: " + ex.getMessage());
+            throw new RuntimeException("Failed to send email");
+        }
+    }
 }

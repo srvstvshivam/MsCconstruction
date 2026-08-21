@@ -4,6 +4,7 @@ import Home from './pages/Home.jsx'
 import Team from './pages/Team.jsx'
 import AdminLogin from './pages/AdminLogin.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
+import AdminResetPassword from './pages/AdminResetPassword.jsx'
 import VisualEditor from './pages/VisualEditor.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
@@ -13,6 +14,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/team" element={<Team />} />
       <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/reset-password" element={<AdminResetPassword />} />
       <Route
         path="/admin/dashboard"
         element={
