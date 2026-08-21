@@ -26,20 +26,20 @@ jobs:
           chmod +x gradlew
           ./gradlew build -x test
 
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Install dependencies
-        working-directory: ./ms-construction-frontend
-        run: npm install
-        
-      - name: Build
-        working-directory: ./ms-construction-frontend
-        run: npm run build
+ build-frontend:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      working-directory: ./ms-construction-frontend
+      run: npm ci
+
+    - name: Build
+      working-directory: ./ms-construction-frontend
+      run: npm run build
